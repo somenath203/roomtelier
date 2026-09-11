@@ -1,0 +1,16 @@
+minimumReleaseAge: 4320
+minimumReleaseAgeStrict: false
+minimumReleaseAgeIgnoreMissingTime: false
+blockExoticSubdeps: true
+trustPolicy: no-downgrade
+trustPolicyIgnoreAfter: 525600
+trustLockfile: false
+overrides:
+  "array-includes": "3.1.9"
+  "electron-to-chromium": "1.5.422"
+  "ignore": "7.0.8"
+  "node-releases": "2.0.54"
+  "zod": "4.5.4"
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
