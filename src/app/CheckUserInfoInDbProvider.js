@@ -1,49 +1,63 @@
 /**
- * The work of this component is to check wheather the data of the signed-in user is inside the neon db or not, if yes, then, do nothing
- * but if no, then, insert it in the neon db.
+ * The work of this component is to check whether the data of the
+ * signed-in user exists inside the Neon DB or not.
+ *
+ * If it exists, we do nothing.
+ * If it does not exist, we insert the user's data into the Neon DB.
  */
 
-'use client';
+"use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
+
+import { UserDetailsContext } from "./_context/userDetailsContext";
 
 
 const CheckUserInfoInDbProvider = ({ children }) => {
 
   const { user } = useUser();
 
-  const doesSignedInUserDataExistInDB = async () => {
+  const [userDetailsGlobalContext, setUserDetailsGlobalContext] = useState();
 
-    try {
-
-      const res = await axios.post('/api/check-user-in-db', {
-        userInfo: user
-      });
-
-      console.log(res?.data);
-      
-    } catch (error) {
-      
-      console.log(error);
-      
-    }
-
-  }
 
   useEffect(() => {
 
-    // run the function only when the 'user' is available
-    user && doesSignedInUserDataExistInDB();
+    // Run the function only when the Clerk user is available.
+    if (!user) return;
+
+    const checkUser = async () => {
+
+      try {
+
+        const { data } = await axios.post("/api/check-user-in-db", {
+          userInfo: user,
+        });
+
+        if (data?.success) {
+
+          setUserDetailsGlobalContext(data?.userInfoFromRoute);
+
+        }
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+
+    };
+
+    checkUser();
 
   }, [user]);
 
   return (
-    <>
+    <UserDetailsContext.Provider value={{ userDetailsGlobalContext, setUserDetailsGlobalContext }}>
       {children}
-    </>
-  )
-}
+    </UserDetailsContext.Provider>
+  );
+};
 
-export default CheckUserInfoInDbProvider
+export default CheckUserInfoInDbProvider;

@@ -42,10 +42,10 @@ export async function POST(req) {
         }, { status: 201 });
     }
 
-    // If the data of a user is already present in the db, then return the 'userInfo' as it is
+    // If the data of a user is already present in the db, then return the data as it is
     return NextResponse.json({
         success: true,
-        userInfoFromRoute: userInfo,
+        userInfoFromRoute: doesUserInformationAlreadyExistInDB[0],
       }, { status: 200 });
 
   } catch (error) {
