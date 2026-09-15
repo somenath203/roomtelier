@@ -1,10 +1,10 @@
-import Listing from "./_components/Listing"
+import HouseDesignsAIOfUser from "./_components/HouseDesignsAIOfUser"
 
 const Page = () => {
   return (
     <div>
       
-      <Listing />
+      <HouseDesignsAIOfUser />
       
     </div>
   )

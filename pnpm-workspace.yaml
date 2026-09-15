@@ -6,11 +6,10 @@ trustPolicy: no-downgrade
 trustPolicyIgnoreAfter: 525600
 trustLockfile: false
 overrides:
-  "array-includes": "3.1.9"
-  "electron-to-chromium": "1.5.422"
-  "ignore": "7.0.8"
-  "node-releases": "2.0.54"
-  "zod": "4.5.4"
+  "@tybys/wasm-util": "0.10.3"
+  "baseline-browser-mapping": "2.11.22"
+  "enhanced-resolve": "5.24.5"
+  "zod": "4.6.2"
 allowBuilds:
   esbuild: true
   unrs-resolver: true

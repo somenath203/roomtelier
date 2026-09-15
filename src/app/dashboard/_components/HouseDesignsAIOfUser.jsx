@@ -3,12 +3,13 @@
 import { useUser } from "@clerk/nextjs";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import EmptyState from "./EmptyState";
 
 
-const Listing = () => {
+const HouseDesignsAIOfUser = () => {
 
   const { user } = useUser();
 
@@ -23,11 +24,15 @@ const Listing = () => {
           Hello, {user?.fullName}
         </h2>
 
-        <Button className="p-4">
-          {" "}
-          <Plus /> Redesign your Room{" "}
+        <Link href='/dashboard/create-new-interior-design'>
 
-        </Button>
+          <Button className="p-4 cursor-pointer">
+            {" "}
+            <Plus /> Redesign your Room{" "}
+
+          </Button>
+
+        </Link>
 
       </div>
 
@@ -45,4 +50,4 @@ const Listing = () => {
   );
 };
 
-export default Listing;
+export default HouseDesignsAIOfUser;

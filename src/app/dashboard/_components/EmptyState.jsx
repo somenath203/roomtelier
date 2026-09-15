@@ -1,4 +1,5 @@
 import { Warehouse, Plus } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
@@ -13,10 +14,14 @@ const EmptyState = () => {
         Create new AI Interior design for your room
       </h2>
 
-      <Button className="p-4 mt-5">
-        {" "}
-        <Plus /> Redesign your Room{" "}
-      </Button>
+      <Link href='/dashboard/create-new-interior-design'>
+
+        <Button className="p-4 mt-5 cursor-pointer">
+          {" "}
+          <Plus /> Redesign your Room{" "}
+        </Button>
+
+      </Link>
 
     </div>
   );
