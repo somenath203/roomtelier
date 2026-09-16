@@ -19,6 +19,17 @@ const CheckUserInfoInDbProvider = ({ children }) => {
 
   const { user } = useUser();
 
+  /**
+   * We are storing the user's details from the database in the
+   * global context because we need to display the user's total
+   * available credits throughout the application.
+   *
+   * The total credits are retrieved from the database, so keeping
+   * the user's details in the global context allows different
+   * components (e.g. Header.jsx) to easily access and display the credit information.
+   */
+
+
   const [userDetailsGlobalContext, setUserDetailsGlobalContext] = useState();
 
 

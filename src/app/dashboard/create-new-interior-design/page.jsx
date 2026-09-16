@@ -2,19 +2,22 @@
 
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
+import axios from "axios";
 
 import { Button } from "@/components/ui/button";
 import AdditionalRequirementInput from "./_components/AdditionalRequirementInput";
 import ImageSelectionInput from "./_components/ImageSelectionInput";
 import RoomDesignTypeInput from "./_components/RoomDesignTypeInput";
 import RoomTypeInputField from "./_components/RoomTypeInputField";
+import { createClient } from "@/lib/supabase/client";
 
 
 const Page = () => {
 
-  const [allUsertInputs, setAllUserInputs] = useState([]);
+  const [allUsertInputs, setAllUserInputs] = useState({});
 
   const onHandleImageOfRoomSelectedByUser = (value, fieldName) => {
+
     {
       /**
        * Update the 'allUsertInputs' state with the latest value
@@ -60,6 +63,73 @@ const Page = () => {
     }));
     
   };
+
+    const handleSaveImageInSupabase = async (imageFile) => {
+
+      try {
+
+        const supabaseClient = createClient();
+
+
+        const uploadedImageFileExtension = imageFile?.name?.split(".")?.pop();
+
+        const generatedUniqueFileName = `${crypto.randomUUID()}.${uploadedImageFileExtension}`;
+
+        const filePath = `room-images/${generatedUniqueFileName}`;
+        
+        
+        const { data, error } = await supabaseClient.storage.from('myimages').upload(filePath, imageFile, {
+          contentType: imageFile?.type,
+          upsert: false // Prevents an existing file from being overwritten if the same path already exists.
+        });
+
+        if (error) {
+
+          console.error("Supabase upload error:", error);
+
+          throw new Error("Failed to upload room image.");
+
+        }
+
+        const { data: publicUrlOfTheUploadedImg } = supabaseClient.storage.from('myimages').getPublicUrl(data?.path);
+
+        return {
+          uploadedImgUrl: publicUrlOfTheUploadedImg?.publicUrl,
+          filePath: data?.path
+        }
+        
+      } catch (error) {
+        
+        console.log(error);
+
+        throw error;
+        
+      }
+
+    }
+
+  const handleGenerateImageUsingAI = async () => {
+
+    try {
+
+      const uploadRoomImageInSupabaseAndGetUrl = await handleSaveImageInSupabase(allUsertInputs?.roomImageInput);
+
+      const res = await axios.post('/api/redesign-room-ai', {
+        allInputOfUser: {
+          ...allUsertInputs,
+          roomImageInputURL: uploadRoomImageInSupabaseAndGetUrl?.uploadedImgUrl
+        }
+      });
+
+      console.log(res?.data);
+      
+    } catch (error) {
+      
+      console.log(error);
+      
+    }
+
+  }
 
   return (
     <div>
@@ -109,7 +179,7 @@ const Page = () => {
           />
 
           {/* button to generate design */}
-          <Button className="w-full mt-5 py-5 hover:cursor-pointer">
+          <Button className="w-full mt-5 py-5 hover:cursor-pointer" onClick={handleGenerateImageUsingAI}>
             {" "}
             <Sparkles /> Generate Design
           </Button>
