@@ -82,7 +82,10 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: true,
-      data: storeResultInDB,
+      data: {
+        inputImgUrl: roomImageInputURL,
+        generatedAiImageUrl: generatedImageUrl
+      }
     });
 
   } catch (error) {
@@ -371,7 +374,18 @@ export async function POST(req) {
  *
  * Think of a Blob as:
  *
- * "The actual binary data of the image."
+ * "The actual binary data of the image." 
+ * 
+ * For an image, this means the actual bytes that make up * the image, 
+ * rather than its name or URL.
+ * 
+ * Think of it this way: 
+ * URL → The address where the image can be found. 
+ * Blob → The actual image data received from that address. 
+ * 
+ * Computers ultimately store files as binary data, which is made up of bytes (groups of 0s and 1s).
+ * Therefore, when we convert an image response into a Blob, we get the actual image data 
+ * that JavaScript can work with.
  *
  * We can think of the process like this:
  *

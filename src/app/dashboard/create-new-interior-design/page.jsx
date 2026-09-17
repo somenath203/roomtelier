@@ -11,13 +11,17 @@ import RoomDesignTypeInput from "./_components/RoomDesignTypeInput";
 import RoomTypeInputField from "./_components/RoomTypeInputField";
 import { createClient } from "@/lib/supabase/client";
 import CustomLoader from "./_components/CustomLoader";
+import AiImgOutputAlertDialog from "../_components/AiImgOutputAlertDialog";
 
 
 const Page = () => {
 
-  const [allUsertInputs, setAllUserInputs] = useState({});
 
-  const [ outputResultFromAPICall, setOutputResultFromAPICall ] = useState();
+  const [ allUsertInputs, setAllUserInputs ] = useState({});
+
+  const [ outputData, setOutputData ] = useState({});
+
+  const [ isOpenImgOutputDialogBox, setIsOpenImgOutputDialogBox ] = useState(false);
 
   const [ loading, setLoading ] = useState(false);
 
@@ -67,52 +71,52 @@ const Page = () => {
       ...prevValues,
       [fieldName]: value,
     }));
-    
   };
 
-    const handleSaveImageInSupabase = async (imageFile) => {
+  const handleSaveImageInSupabase = async (imageFile) => {
+    try {
+      const supabaseClient = createClient();
 
-      try {
+      const uploadedImageFileExtension = imageFile?.name?.split(".")?.pop();
 
-        const supabaseClient = createClient();
+      const generatedUniqueFileName = `${crypto.randomUUID()}.${uploadedImageFileExtension}`;
 
+      const filePath = `room-images/${generatedUniqueFileName}`;
 
-        const uploadedImageFileExtension = imageFile?.name?.split(".")?.pop();
-
-        const generatedUniqueFileName = `${crypto.randomUUID()}.${uploadedImageFileExtension}`;
-
-        const filePath = `room-images/${generatedUniqueFileName}`;
-        
-        
-        const { data, error } = await supabaseClient.storage.from('myimages').upload(filePath, imageFile, {
+      const { data, error } = await supabaseClient.storage
+        .from("myimages")
+        .upload(filePath, imageFile, {
           contentType: imageFile?.type,
-          upsert: false // Prevents an existing file from being overwritten if the same path already exists.
+          upsert: false, // Prevents an existing file from being overwritten if the same path already exists.
         });
 
-        if (error) {
+      if (error) {
 
-          console.error("Supabase upload error:", error);
+        console.error("Supabase upload error:", error);
 
-          throw new Error("Failed to upload room image.");
+        throw new Error("Failed to upload room image.");
 
-        }
-
-        const { data: publicUrlOfTheUploadedImg } = supabaseClient.storage.from('myimages').getPublicUrl(data?.path);
-
-        return {
-          uploadedImgUrl: publicUrlOfTheUploadedImg?.publicUrl,
-          filePath: data?.path
-        }
-        
-      } catch (error) {
-        
-        console.log(error);
-
-        throw error;
-        
       }
 
+      const { data: publicUrlOfTheUploadedImg } = supabaseClient.storage
+        .from("myimages")
+        .getPublicUrl(data?.path);
+
+      return {
+        uploadedImgUrl: publicUrlOfTheUploadedImg?.publicUrl,
+        filePath: data?.path,
+      };
+
+    } catch (error) {
+
+      console.log(error);
+
+      throw error;
+
     }
+
+  };
+
 
   const handleGenerateImageUsingAI = async () => {
 
@@ -122,26 +126,32 @@ const Page = () => {
 
       const uploadRoomImageInSupabaseAndGetUrl = await handleSaveImageInSupabase(allUsertInputs?.roomImageInput);
 
-      const res = await axios.post('/api/redesign-room-ai', {
+      const res = await axios.post("/api/redesign-room-ai", {
         allInputOfUser: {
           ...allUsertInputs,
-          roomImageInputURL: uploadRoomImageInSupabaseAndGetUrl?.uploadedImgUrl
-        }
+          roomImageInputURL: uploadRoomImageInSupabaseAndGetUrl?.uploadedImgUrl,
+        },
       });
 
-      setOutputResultFromAPICall(res?.data?.data);
-      
+      setOutputData(res?.data?.data);
+
+      setIsOpenImgOutputDialogBox(true);
+
     } catch (error) {
-      
+
       console.log(error);
-      
+
+      setOutputData({});
+
+      setIsOpenImgOutputDialogBox(false);
+
     } finally {
 
       setLoading(false);
 
     }
 
-  }
+  };
 
   return (
     <div>
@@ -166,6 +176,7 @@ const Page = () => {
 
         {/* form input section */}
         <div>
+
           {/* room type input field */}
           <RoomTypeInputField
             selectedRoomTypeByUser={(value) =>
@@ -191,7 +202,10 @@ const Page = () => {
           />
 
           {/* button to generate design */}
-          <Button className="w-full mt-5 py-5 hover:cursor-pointer" onClick={handleGenerateImageUsingAI}>
+          <Button
+            className="w-full mt-5 py-5 hover:cursor-pointer"
+            onClick={handleGenerateImageUsingAI}
+          >
             {" "}
             <Sparkles /> Generate Design
           </Button>
@@ -205,11 +219,20 @@ const Page = () => {
 
       </div>
 
-      <CustomLoader loading={loading} setLoading={setLoading} />
+      <CustomLoader 
+        loading={loading} 
+        setLoading={setLoading}
+      />
+
+      <AiImgOutputAlertDialog
+        openAIOutputDialog={isOpenImgOutputDialogBox}
+        setOpenAIOutputDialog={setIsOpenImgOutputDialogBox}
+        inputImgUrl={outputData?.inputImgUrl}
+        generatedAiImgUrl={outputData?.generatedAiImageUrl}
+      />
 
     </div>
   );
 };
-
 
 export default Page;
