@@ -1,5 +1,5 @@
-import ReactBeforeSliderComponent from 'react-before-after-slider-component';
-import 'react-before-after-slider-component/dist/build.css';
+import ReactBeforeSliderComponent from "react-before-after-slider-component";
+import "react-before-after-slider-component/dist/build.css";
 
 import {
   AlertDialog,
@@ -8,15 +8,14 @@ import {
   AlertDialogTitle,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { Button } from '@/components/ui/button';
-
+import { Button } from "@/components/ui/button";
 
 const AiImgOutputAlertDialog = ({ openAIOutputDialog, setOpenAIOutputDialog, inputImgUrl, generatedAiImgUrl }) => {
   return (
     <div>
 
       <AlertDialog open={openAIOutputDialog} onOpenChange={setOpenAIOutputDialog}>
-
+        
         <AlertDialogContent>
 
           <AlertDialogHeader>
@@ -25,10 +24,10 @@ const AiImgOutputAlertDialog = ({ openAIOutputDialog, setOpenAIOutputDialog, inp
 
             <ReactBeforeSliderComponent
               firstImage={{
-                imageUrl: inputImgUrl
+                imageUrl: inputImgUrl,
               }}
               secondImage={{
-                imageUrl: generatedAiImgUrl
+                imageUrl: generatedAiImgUrl,
               }}
             />
 
@@ -36,7 +35,20 @@ const AiImgOutputAlertDialog = ({ openAIOutputDialog, setOpenAIOutputDialog, inp
 
           <AlertDialogFooter>
 
-            <Button onClick={() => setOpenAIOutputDialog(false)} className="hover:cursor-pointer">Close</Button>
+            <Button
+              onClick={(event) => {
+                /*
+                 * Prevents the click event from bubbling up to the parent <div>.
+                 * Without this, clicking "Close" would also trigger the parent's
+                 * onClick handler and reopen the AlertDialog immediately.
+                 */
+                event.stopPropagation();
+                setOpenAIOutputDialog(false);
+              }}
+              className="hover:cursor-pointer"
+            >
+              Close
+            </Button>
 
           </AlertDialogFooter>
 

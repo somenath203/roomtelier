@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Replicate from "replicate";
+import { eq } from "drizzle-orm";
 
 import { supabase } from "@/lib/supabase/server";
 import { db } from "@/index";
@@ -16,13 +17,13 @@ export async function POST(req) {
 
   try {
 
-
     const user = await currentUser();
 
 
     const { allInputOfUser } = await req.json();
 
     const { roomImageInputURL, roomTypeInput, designTypeInput, additionalRequirementsInput } = allInputOfUser;
+
 
     // Create the input that will be sent to the Replicate model.
     const input = {
@@ -32,7 +33,10 @@ export async function POST(req) {
 
     // Run the Replicate model.
     // The returned value is a Replicate FileOutput object.
-    const imageOutputByAI = await replicate.run("adirik/interior-design:76604baddc85b1b4616e1c6475eca080da339c8875bd4996705440484a6eac38", { input });
+    const imageOutputByAI = await replicate.run(
+      "adirik/interior-design:76604baddc85b1b4616e1c6475eca080da339c8875bd4996705440484a6eac38",
+      { input },
+    );
 
     // Convert the Replicate FileOutput into a Blob.
     const generatedImageBlob = await imageOutputByAI.blob();
@@ -47,10 +51,12 @@ export async function POST(req) {
      * Upload the generated image directly to the Supabase
      * Storage bucket from the server.
      */
-    const { data, error } = await supabase.storage.from("myimages").upload(generatedImageFilePath, generatedImageBlob, {
-      contentType: "image/png",
-      upsert: false,
-    });
+    const { data, error } = await supabase.storage
+      .from("myimages")
+      .upload(generatedImageFilePath, generatedImageBlob, {
+        contentType: "image/png",
+        upsert: false,
+      });
 
     if (error) {
 
@@ -64,28 +70,33 @@ export async function POST(req) {
      * Get the public URL of the image that was successfully
      * stored in Supabase Storage.
      */
-    const { data: publicUrlData } = supabase.storage.from("myimages").getPublicUrl(data.path);
+    const { data: publicUrlData } = supabase.storage
+      .from("myimages")
+      .getPublicUrl(data.path);
 
     const generatedImageUrl = publicUrlData.publicUrl;
 
     // store the result in neon database
-    const storeResultInDB = await db.insert(aiGeneratedImageData).values({
-      roomType: roomTypeInput,
-      designType: designTypeInput,
-      originalImageUrl: roomImageInputURL,
-      generatedAiImageUrl: generatedImageUrl,
-      emailIdOfTheUserWhoHasGeneratedTheAIImage: user?.emailAddresses[0]?.emailAddress
-    }).returning({
-      // returning the ID of the inserted record
-      id: aiGeneratedImageData?.id
-    });
+    const storeResultInDB = await db
+      .insert(aiGeneratedImageData)
+      .values({
+        roomType: roomTypeInput,
+        designType: designTypeInput,
+        originalImageUrl: roomImageInputURL,
+        generatedAiImageUrl: generatedImageUrl,
+        emailIdOfTheUserWhoHasGeneratedTheAIImage: user?.emailAddresses[0]?.emailAddress,
+      })
+      .returning({
+        // returning the ID of the inserted record
+        id: aiGeneratedImageData?.id,
+      });
 
     return NextResponse.json({
       success: true,
       data: {
         inputImgUrl: roomImageInputURL,
-        generatedAiImageUrl: generatedImageUrl
-      }
+        generatedAiImageUrl: generatedImageUrl,
+      },
     });
 
   } catch (error) {
@@ -94,13 +105,13 @@ export async function POST(req) {
 
     return NextResponse.json({
       success: false,
-      error: error?.message || "Something went wrong while generating the image",
+      error:
+        error?.message || "Something went wrong while generating the image",
     });
 
   }
 
 }
-
 
 /**
  * Why do we convert the Replicate FileOutput into a Blob and
@@ -119,10 +130,9 @@ export async function POST(req) {
  * image even after the temporary Replicate URL expires.
  */
 
-
 /**
  * EXPLANATION OF THE ABOVE CODE
- * 
+ *
  * ============================================================
  * STEP 1: Get the data sent by the frontend
  * ============================================================
@@ -184,7 +194,6 @@ export async function POST(req) {
  * }
  */
 
-
 /**
  * ============================================================
  * STEP 2: Get the individual values from allInputOfUser
@@ -234,7 +243,6 @@ export async function POST(req) {
  * separated it into individual variables that are easier
  * to use.
  */
-
 
 /**
  * ============================================================
@@ -297,7 +305,6 @@ export async function POST(req) {
  * This is the object that we will give to the Replicate model.
  */
 
-
 /**
  * ============================================================
  * STEP 4: Run the Replicate AI model
@@ -357,7 +364,6 @@ export async function POST(req) {
  * methods such as '.blob()' and '.url()'.
  */
 
-
 /**
  * ============================================================
  * STEP 5: Convert the Replicate FileOutput into a Blob
@@ -374,17 +380,17 @@ export async function POST(req) {
  *
  * Think of a Blob as:
  *
- * "The actual binary data of the image." 
- * 
- * For an image, this means the actual bytes that make up * the image, 
+ * "The actual binary data of the image."
+ *
+ * For an image, this means the actual bytes that make up * the image,
  * rather than its name or URL.
- * 
- * Think of it this way: 
- * URL → The address where the image can be found. 
- * Blob → The actual image data received from that address. 
- * 
+ *
+ * Think of it this way:
+ * URL → The address where the image can be found.
+ * Blob → The actual image data received from that address.
+ *
  * Computers ultimately store files as binary data, which is made up of bytes (groups of 0s and 1s).
- * Therefore, when we convert an image response into a Blob, we get the actual image data 
+ * Therefore, when we convert an image response into a Blob, we get the actual image data
  * that JavaScript can work with.
  *
  * We can think of the process like this:
@@ -417,7 +423,6 @@ export async function POST(req) {
  * This distinction is important because a URL string does
  * not have a '.blob()' method.
  */
-
 
 /**
  * ============================================================
@@ -459,7 +464,6 @@ export async function POST(req) {
  * file name.
  */
 
-
 /**
  * ============================================================
  * STEP 7: Create the Storage path
@@ -497,7 +501,6 @@ export async function POST(req) {
  *     ├── image-2.png
  *     └── image-3.png
  */
-
 
 /**
  * ============================================================
@@ -580,7 +583,6 @@ export async function POST(req) {
  * are extremely unlikely anyway.
  */
 
-
 /**
  * ============================================================
  * STEP 9: Check whether the Supabase upload failed
@@ -623,7 +625,6 @@ export async function POST(req) {
  * stops the normal execution of the try block and moves
  * execution into the 'catch' block.
  */
-
 
 /**
  * ============================================================
@@ -694,7 +695,6 @@ export async function POST(req) {
  * rather than the temporary Replicate output URL.
  */
 
-
 /**
  * ============================================================
  * STEP 11: Send the Supabase URL back to the frontend
@@ -757,3 +757,38 @@ export async function POST(req) {
  *             ↓
  * Send URL back to frontend
  */
+
+export async function GET(req) {
+
+  try {
+
+    const user = await currentUser();
+
+    const allDesignsOfTheCurrentlyAuthenticatedUser = await db
+      .select()
+      .from(aiGeneratedImageData)
+      .where(
+        eq(
+          aiGeneratedImageData.emailIdOfTheUserWhoHasGeneratedTheAIImage,
+          user?.emailAddresses[0]?.emailAddress,
+        ),
+      );
+
+    return NextResponse.json({
+      success: true,
+      data: allDesignsOfTheCurrentlyAuthenticatedUser
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    return NextResponse.json({
+      success: false,
+      error:
+        error?.message || "Something went wrong while generating the image",
+    });
+
+  }
+
+}
