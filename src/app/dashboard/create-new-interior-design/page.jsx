@@ -10,11 +10,17 @@ import ImageSelectionInput from "./_components/ImageSelectionInput";
 import RoomDesignTypeInput from "./_components/RoomDesignTypeInput";
 import RoomTypeInputField from "./_components/RoomTypeInputField";
 import { createClient } from "@/lib/supabase/client";
+import CustomLoader from "./_components/CustomLoader";
 
 
 const Page = () => {
 
   const [allUsertInputs, setAllUserInputs] = useState({});
+
+  const [ outputResultFromAPICall, setOutputResultFromAPICall ] = useState();
+
+  const [ loading, setLoading ] = useState(false);
+
 
   const onHandleImageOfRoomSelectedByUser = (value, fieldName) => {
 
@@ -112,6 +118,8 @@ const Page = () => {
 
     try {
 
+      setLoading(true);
+
       const uploadRoomImageInSupabaseAndGetUrl = await handleSaveImageInSupabase(allUsertInputs?.roomImageInput);
 
       const res = await axios.post('/api/redesign-room-ai', {
@@ -121,12 +129,16 @@ const Page = () => {
         }
       });
 
-      console.log(res?.data);
+      setOutputResultFromAPICall(res?.data?.data);
       
     } catch (error) {
       
       console.log(error);
       
+    } finally {
+
+      setLoading(false);
+
     }
 
   }
@@ -192,6 +204,8 @@ const Page = () => {
         </div>
 
       </div>
+
+      <CustomLoader loading={loading} setLoading={setLoading} />
 
     </div>
   );

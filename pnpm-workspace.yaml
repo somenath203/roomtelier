@@ -6,12 +6,11 @@ trustPolicy: no-downgrade
 trustPolicyIgnoreAfter: 525600
 trustLockfile: false
 overrides:
-  "@tybys/wasm-util": "0.10.3"
-  "baseline-browser-mapping": "2.11.22"
-  "enhanced-resolve": "5.24.5"
-  "zod": "4.6.2"
+  "baseline-browser-mapping": "2.11.23"
+  "brace-expansion@1.1.21": "1.1.18"
+  "brace-expansion@5.0.12": "5.0.9"
+  "browserslist": "4.28.9"
+  "electron-to-chromium": "1.5.427"
 allowBuilds:
-  '@firebase/util': true
   esbuild: true
-  protobufjs: true
   unrs-resolver: true
