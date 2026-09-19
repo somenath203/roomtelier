@@ -1,19 +1,12 @@
-import { Geist_Mono, Outfit } from "next/font/google";
+import { Geist_Mono, Outfit, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import "./globals.css";
 import CheckUserInfoInDbAndPaypalProvider from "./_components/CheckUserInfoInDbAndPaypalProvider";
 import { ToastContainer } from "react-toastify";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
 
 export const metadata = {
   title: "RoomTelier",
@@ -25,7 +18,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>

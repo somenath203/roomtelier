@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
@@ -17,6 +17,8 @@ const HouseDesignsAIOfUser = () => {
 
   const [userRoomReDesignList, setUserRoomReDesignList] = useState([]);
 
+  const [ loadingDesigns, setLoadingDesigns ] = useState(false);
+
 
   useEffect(() => {
 
@@ -26,6 +28,8 @@ const HouseDesignsAIOfUser = () => {
 
       try {
 
+        setLoadingDesigns(true);
+
         const res = await axios.get("/api/redesign-room-ai");
         
         setUserRoomReDesignList(res?.data?.data ?? []);
@@ -33,6 +37,10 @@ const HouseDesignsAIOfUser = () => {
       } catch (error) {
 
         console.log(error);
+
+      } finally {
+
+        setLoadingDesigns(false);
 
       }
 
@@ -62,7 +70,13 @@ const HouseDesignsAIOfUser = () => {
 
       </div>
 
-      {userRoomReDesignList?.length === 0 ? <EmptyState /> : (
+      {loadingDesigns ? (
+        <div className="mt-38 flex items-center justify-center">
+
+          <Loader2 size={35} className="animate-spin duration-150" />
+
+        </div>
+      ) : userRoomReDesignList?.length === 0 ? <EmptyState /> : (
         <div className="mt-10">
 
           <h2 className="font-medium text-primary text-xl mb-10">Your AI-generated room designs</h2>

@@ -7,7 +7,7 @@ const CustomLoader = ({ loading, setLoading }) => {
 
       <AlertDialogContent>
 
-        <div className="my-10 bg-white flex flex-col items-center justify-center gap-1">
+        <div className="my-10 flex flex-col items-center justify-center gap-1">
 
             <Loader2 size={40} className="animate-spin duration-150" /> <span className="text-center">Redesigning your room with AI... Please don&apos;t refresh or close this page.</span>
 
