@@ -11,11 +11,12 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
-import { UserDetailsContext } from "./_context/userDetailsContext";
+import { UserDetailsContext } from "../_context/userDetailsContext";
 
 
-const CheckUserInfoInDbProvider = ({ children }) => {
+const CheckUserInfoInDbAndPaypalProvider = ({ children }) => {
 
   const { user } = useUser();
 
@@ -29,9 +30,7 @@ const CheckUserInfoInDbProvider = ({ children }) => {
    * components (e.g. Header.jsx) to easily access and display the credit information.
    */
 
-
   const [userDetailsGlobalContext, setUserDetailsGlobalContext] = useState();
-
 
   useEffect(() => {
 
@@ -66,9 +65,15 @@ const CheckUserInfoInDbProvider = ({ children }) => {
 
   return (
     <UserDetailsContext.Provider value={{ userDetailsGlobalContext, setUserDetailsGlobalContext }}>
-      {children}
+      
+      <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}>
+
+        {children}
+
+      </PayPalScriptProvider>
+
     </UserDetailsContext.Provider>
   );
 };
 
-export default CheckUserInfoInDbProvider;
+export default CheckUserInfoInDbAndPaypalProvider;

@@ -1,8 +1,9 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import AdditionalRequirementInput from "./_components/AdditionalRequirementInput";
@@ -12,12 +13,13 @@ import RoomTypeInputField from "./_components/RoomTypeInputField";
 import { createClient } from "@/lib/supabase/client";
 import CustomLoader from "./_components/CustomLoader";
 import AiImgOutputAlertDialog from "../_components/AiImgOutputAlertDialog";
+import { UserDetailsContext } from "@/app/_context/userDetailsContext";
 
 
 const Page = () => {
 
 
-  const [ allUsertInputs, setAllUserInputs ] = useState({});
+  const [ allUserInputs, setAllUserInputs ] = useState({});
 
   const [ outputData, setOutputData ] = useState({});
 
@@ -25,12 +27,14 @@ const Page = () => {
 
   const [ loading, setLoading ] = useState(false);
 
+  const { setUserDetailsGlobalContext } = useContext(UserDetailsContext);
+
 
   const onHandleImageOfRoomSelectedByUser = (value, fieldName) => {
 
     {
       /**
-       * Update the 'allUsertInputs' state with the latest value
+       * Update the 'allUserInputs' state with the latest value
        * selected or entered by the user.
        *
        * 'prevValues' contains all the values that are already stored
@@ -74,7 +78,15 @@ const Page = () => {
   };
 
   const handleSaveImageInSupabase = async (imageFile) => {
+
     try {
+
+      if(!imageFile) {
+
+        throw new Error("Room image is required");
+
+      }
+
       const supabaseClient = createClient();
 
       const uploadedImageFileExtension = imageFile?.name?.split(".")?.pop();
@@ -94,7 +106,7 @@ const Page = () => {
 
         console.error("Supabase upload error:", error);
 
-        throw new Error("Failed to upload room image.");
+        throw new Error("Failed to upload room image");
 
       }
 
@@ -124,18 +136,36 @@ const Page = () => {
 
       setLoading(true);
 
-      const uploadRoomImageInSupabaseAndGetUrl = await handleSaveImageInSupabase(allUsertInputs?.roomImageInput);
+      const uploadRoomImageInSupabaseAndGetUrl = await handleSaveImageInSupabase(allUserInputs?.roomImageInput);
 
       const res = await axios.post("/api/redesign-room-ai", {
         allInputOfUser: {
-          ...allUsertInputs,
+          ...allUserInputs,
           roomImageInputURL: uploadRoomImageInSupabaseAndGetUrl?.uploadedImgUrl,
         },
       });
 
-      setOutputData(res?.data?.data);
+      if (res?.data?.success) {
+        
+        setOutputData(res?.data?.data);
 
-      setIsOpenImgOutputDialogBox(true);
+        setUserDetailsGlobalContext(res?.data?.data?.updatedUserDetails); 
+        // Update the global context with the user's complete, latest details.
+
+        setIsOpenImgOutputDialogBox(true);
+
+        toast.success('design generated successfully', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+
+      }
 
     } catch (error) {
 
@@ -144,6 +174,17 @@ const Page = () => {
       setOutputData({});
 
       setIsOpenImgOutputDialogBox(false);
+
+      toast.error(error?.response?.data?.error || error?.message || "Something went wrong while generating the room design", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
 
     } finally {
 

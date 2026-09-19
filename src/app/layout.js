@@ -2,8 +2,8 @@ import { Geist_Mono, Outfit } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import "./globals.css";
-import CheckUserInfoInDbProvider from "./CheckUserInfoInDbProvider";
-
+import CheckUserInfoInDbAndPaypalProvider from "./_components/CheckUserInfoInDbAndPaypalProvider";
+import { ToastContainer } from "react-toastify";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -17,7 +17,8 @@ const outfit = Outfit({
 
 export const metadata = {
   title: "RoomTelier",
-  description: "Roomtelier turns any room photo into a stunning new design with AI. Pick your room type and style, and watch your space transform in seconds.",
+  description:
+    "Roomtelier turns any room photo into a stunning new design with AI. Pick your room type and style, and watch your space transform in seconds.",
 };
 
 export default function RootLayout({ children }) {
@@ -30,15 +31,15 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
 
         <ClerkProvider>
-          
-          <CheckUserInfoInDbProvider>
-            {children}
-          </CheckUserInfoInDbProvider>
-          
+
+          <CheckUserInfoInDbAndPaypalProvider>{children}</CheckUserInfoInDbAndPaypalProvider>
+
         </ClerkProvider>
 
-      </body>
+        <ToastContainer />
 
+      </body>
+      
     </html>
   );
 }

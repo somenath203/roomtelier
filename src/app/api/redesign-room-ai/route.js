@@ -1,11 +1,11 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Replicate from "replicate";
-import { eq } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 
 import { supabase } from "@/lib/supabase/server";
 import { db } from "@/index";
-import { aiGeneratedImageData } from "@/db/schema";
+import { aiGeneratedImageData, usersTable } from "@/db/schema";
 
 
 const replicate = new Replicate({
@@ -19,10 +19,50 @@ export async function POST(req) {
 
     const user = await currentUser();
 
+    if (!user) {
+
+      throw new Error("User is not authenticated");
+
+    }
+
+    // Get the user's current data from the database.
+    const authenticatedUserDataFromDB = await db
+      .select({
+        totalCredits: usersTable.totalCredits,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.email, user?.emailAddresses[0]?.emailAddress));
+
+
+    if (authenticatedUserDataFromDB.length === 0) {
+
+      throw new Error("User record was not found in db");
+
+    }
+
+
+    // Make sure the user has at least one credit before generating the design.
+    if (authenticatedUserDataFromDB[0]?.totalCredits < 1) {
+
+      throw new Error("You do not have enough credits to generate a room design");
+
+    }
 
     const { allInputOfUser } = await req.json();
 
-    const { roomImageInputURL, roomTypeInput, designTypeInput, additionalRequirementsInput } = allInputOfUser;
+    const {
+      roomImageInputURL,
+      roomTypeInput,
+      designTypeInput,
+      additionalRequirementsInput,
+    } = allInputOfUser;
+
+    // Validate all compulsory inputs before generating the room design.
+    if (!roomImageInputURL || !roomTypeInput || !designTypeInput) {
+
+      throw new Error("Please provide all the required information");
+
+    }
 
 
     // Create the input that will be sent to the Replicate model.
@@ -77,7 +117,7 @@ export async function POST(req) {
     const generatedImageUrl = publicUrlData.publicUrl;
 
     // store the result in neon database
-    const storeResultInDB = await db
+    await db
       .insert(aiGeneratedImageData)
       .values({
         roomType: roomTypeInput,
@@ -91,23 +131,51 @@ export async function POST(req) {
         id: aiGeneratedImageData?.id,
       });
 
+    /**
+     * Deduct one credit only after the AI-generated design
+     * has been successfully created and stored.
+     *
+     * The `gt()` condition prevents the credit balance
+     * from going below zero.
+     */
+    const userDataWithDeductedCredit = await db
+      .update(usersTable)
+      .set({
+        totalCredits: sql`${usersTable.totalCredits} - 1`,
+      })
+      .where(
+        and(
+          eq(usersTable.email, user?.emailAddresses[0]?.emailAddress),
+          gt(usersTable.totalCredits, 0),
+        ),
+      )
+      .returning();
+
+
+    if (userDataWithDeductedCredit?.length === 0) {
+
+      throw new Error("Failed to deduct the user's credit.");
+      
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         inputImgUrl: roomImageInputURL,
         generatedAiImageUrl: generatedImageUrl,
+        updatedUserDetails: userDataWithDeductedCredit[0]
       },
     });
 
   } catch (error) {
 
-    console.log(error);
+    console.log(error?.message);
 
     return NextResponse.json({
       success: false,
       error:
         error?.message || "Something went wrong while generating the image",
-    });
+    }, { status: 500 });
 
   }
 
@@ -764,6 +832,18 @@ export async function GET(req) {
 
     const user = await currentUser();
 
+    if (!user) {
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User is not authenticated.",
+        },
+        { status: 401 },
+      );
+
+    }
+
     const allDesignsOfTheCurrentlyAuthenticatedUser = await db
       .select()
       .from(aiGeneratedImageData)
@@ -776,7 +856,7 @@ export async function GET(req) {
 
     return NextResponse.json({
       success: true,
-      data: allDesignsOfTheCurrentlyAuthenticatedUser
+      data: allDesignsOfTheCurrentlyAuthenticatedUser,
     });
 
   } catch (error) {
@@ -790,5 +870,5 @@ export async function GET(req) {
     });
 
   }
-
+  
 }

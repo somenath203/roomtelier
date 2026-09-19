@@ -11,6 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 
 const AiImgOutputAlertDialog = ({ openAIOutputDialog, setOpenAIOutputDialog, inputImgUrl, generatedAiImgUrl }) => {
+
+  console.log(inputImgUrl);
+
+  console.log(generatedAiImgUrl);
+  
+  
   return (
     <div>
 
