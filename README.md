@@ -136,43 +136,21 @@ The application follows this general flow:
 
 ## Tech Stack Used
 
-### Frontend
-
 - Next.js
 - React
 - JavaScript
 - Tailwind CSS
 - shadcn/ui
 - Lucide React
-
-### Authentication
-
 - Clerk
-
-### AI
-
 - Replicate
-
-### Database
-
 - Neon PostgreSQL
 - Drizzle ORM
-
-### Image Storage
-
 - Supabase Storage
-
-### Payments
-
 - PayPal
-
-### Other Libraries and Tools
-
 - Axios
 - React Toastify
 - React Before After Slider
-- Git & GitHub
-- Vercel
 
 ---
 
