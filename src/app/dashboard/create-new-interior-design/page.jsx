@@ -4,6 +4,7 @@ import { Sparkles } from "lucide-react";
 import { useContext, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
 import AdditionalRequirementInput from "./_components/AdditionalRequirementInput";
@@ -17,6 +18,8 @@ import { UserDetailsContext } from "@/app/_context/userDetailsContext";
 
 
 const Page = () => {
+
+  const { isLoaded, isSignedIn } = useAuth();
 
 
   const [ allUserInputs, setAllUserInputs ] = useState({});
@@ -193,6 +196,18 @@ const Page = () => {
     }
 
   };
+
+  if (!isLoaded) {
+
+    return null;
+
+  }
+
+  if (!isSignedIn) {
+
+    return <RedirectToSignIn />
+    
+  }
 
   return (
     <div>

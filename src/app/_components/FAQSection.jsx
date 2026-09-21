@@ -9,7 +9,7 @@ import { FAQS } from "../../landingpagedata";
 
 export default function FAQSection() {
   return (
-    <section id="faq" className="scroll-mt-20 border-t bg-muted/40">
+    <section id="faq" className="scroll-mt-20 border-t bg-muted/40" suppressHydrationWarning>
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-[1fr_1.6fr] lg:gap-16 lg:px-8">
         <Reveal>
           <h2 className="text-balance text-3xl font-bold tracking-tight text-primary sm:text-4xl">

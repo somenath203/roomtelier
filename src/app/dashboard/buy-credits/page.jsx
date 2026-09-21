@@ -3,9 +3,11 @@
 import { useContext, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { PayPalButtons } from "@paypal/react-paypal-js";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { PayPalButtons } from "@paypal/react-paypal-js";
 import { UserDetailsContext } from "@/app/_context/userDetailsContext";
 
 const Page = () => {
@@ -38,6 +40,9 @@ const Page = () => {
     },
   ];
 
+  const { isLoaded, isSignedIn } = useAuth();
+
+  const router = useRouter();
 
   const [selectedCreditOption, setSelectedCreditOption] = useState(null);
 
@@ -68,6 +73,8 @@ const Page = () => {
           theme: "colored",
         });
 
+        router.push('/dashboard');
+
       }
 
     } catch (error) {
@@ -80,9 +87,30 @@ const Page = () => {
 
   const handlePaymentCancel = () => {
 
-    console.log("cancelled");
+    toast.info('Payment Cancelled', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
 
   };
+
+  if (!isLoaded) {
+
+    return null;
+
+  }
+
+  if (!isSignedIn) {
+
+    return <RedirectToSignIn />
+    
+  }
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">

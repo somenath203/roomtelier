@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
+
 import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
 import { DESIGN_ROUTE, NAV_LINKS } from "../../landingpagedata";
@@ -47,7 +48,7 @@ export default function LandingHeader() {
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                    className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hover:cursor-pointer"
                   >
                     {link.label}
                   </a>
@@ -59,7 +60,7 @@ export default function LandingHeader() {
           <div className="flex items-center gap-3">
             {showSignIn && (
               <SignInButton mode="modal">
-                <Button variant="ghost">Sign In</Button>
+                <Button variant="ghost" className="hover:cursor-pointer">Sign In</Button>
               </SignInButton>
             )}
             {showUser && <UserButton />}
