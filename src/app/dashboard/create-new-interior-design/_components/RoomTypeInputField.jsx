@@ -23,10 +23,13 @@ const RoomTypeInputField = ({ selectedRoomTypeByUser }) => {
         <SelectContent>
           <SelectGroup>
             <SelectItem value="Living Room">Living Room</SelectItem>
-            <SelectItem value="Bedroom">Bed Room</SelectItem>
+            <SelectItem value="Bedroom">Bedroom</SelectItem>
             <SelectItem value="Kitchen">Kitchen</SelectItem>
-            <SelectItem value="Office">Office</SelectItem>
             <SelectItem value="Bathroom">Bathroom</SelectItem>
+            <SelectItem value="Dining Room">Dining Room</SelectItem>
+            <SelectItem value="Home Office">Home Office</SelectItem>
+            <SelectItem value="Kids' Room">Kids Room</SelectItem>
+            <SelectItem value="Guest Room">Guest Room</SelectItem>
           </SelectGroup>
 
         </SelectContent>

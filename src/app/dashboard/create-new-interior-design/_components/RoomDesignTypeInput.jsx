@@ -30,8 +30,16 @@ const RoomDesignTypeInput = ({ selectedInteriorDesignTypeByUser }) => {
     },
     {
       id: 6,
-      name: 'Minimilist'
-    }
+      name: "Minimalist",
+    },
+    {
+      id: 7,
+      name: "Scandinavian",
+    },
+    {
+      id: 8,
+      name: "Japandi",
+    },
   ];
 
   return (
@@ -43,11 +51,11 @@ const RoomDesignTypeInput = ({ selectedInteriorDesignTypeByUser }) => {
         {designs.map((design) => (
           <div
             key={design.id}
-            className={`${design.name === selectedOptionByUser ? 'border-2 border-primary' : 'border'} bg-gray-100 hover:bg-gray-200 p-5 rounded-xl hover:cursor-pointer`}
+            className={`flex items-center justify-center ${design.name === selectedOptionByUser ? 'border-2 border-primary' : 'border'} bg-gray-100 hover:bg-gray-200 p-5 rounded-xl hover:cursor-pointer`}
             onClick={() => {setSelectedOptionByUser(design.name); selectedInteriorDesignTypeByUser(design.name);}}
           >
 
-            <h2 className="text-center">{design.name}</h2>
+            <h2>{design.name}</h2>
 
           </div>
         ))}
