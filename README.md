@@ -2,7 +2,7 @@
 
 [![RoomTelier Demo](./readme_images/thumbnailscreenshot.png)](https://www.youtube.com/watch?v=qQcLF6G2YI0)
 
-_RoomTelier is an AI-powered interior design application that transforms your room photo into a beautifully redesigned space based on your chosen room type, interior style, and design requirements._
+_RoomTelier is an AI-powered interior design application that transforms your room photo into a beautifully redesigned space based on your chosen room type, interior style, and design requirements. Click the thumbnail above to watch the complete project demo on YouTube._
 
 ## Contents
 
